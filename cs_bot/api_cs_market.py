@@ -63,7 +63,7 @@ class RequestsCS:
         price = "{0:.0f}".format(price * 100)
         data = requests.get(f'{self.v2}/add-to-sale?key={self._cs_api}&id={item.id[0]}&price={price}&cur=RUB').json()
         if not data['success']:
-            print(item.name, data)
+            print('Не продали:', item.name, data)
             return False
         item.id_sell = data['item_id']
         print(item.name)
