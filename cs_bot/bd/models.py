@@ -26,8 +26,8 @@ class Items(Base):
     class_id = Column(BigInteger(), nullable=False)
     instance_id = Column(Integer(), nullable=False)
 
-    price = relationship('Price', backref='Items')
-    status = relationship('Status', backref="items")
+    price = relationship('Price', backref='Items', uselist=False)
+    status = relationship('Status', backref="items", uselist=False)
 
     def __repr__(self):
         return f'id: {self.id} name: {self.name}'
@@ -51,6 +51,7 @@ class Status(Base):
     created_on = Column(DateTime(), default=datetime.now)
     updated_on = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
     item_id = Column(BigInteger(), ForeignKey('items.id', ondelete='CASCADE'))
+    counter = Column(Integer, default=0)
 
     # items = relationship('Items', back_populates="status")
 

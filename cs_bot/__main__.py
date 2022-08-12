@@ -1,7 +1,4 @@
 import time
-
-
-
 from cs_bot.models_API import Inventory
 from bd.models import Items, Price, Status, engine_bd_cs, engine_bd_full_base
 from api_cs_market import RequestsCS
@@ -86,45 +83,43 @@ def chech_my_price(list_item_id) -> list:
 
 def traders(item):
     price = round((item.sell_orders[0] - 0.01), 2)
+    #data = trader.sell(item, price)
+    if price > item.low_avg:
+        if price < item.min_price():
+            if item.range_price() > 5:
+                print(item.name)
     data = trader.sell(item, price)
-    # if price > item.low_avg:
-    #     if price < item.min_price():
-    #         if item.range_price() > 5:
-    # #print(item.name)
-    # data = trader.sell(item, price)
-    # if not data:
-    #     return False
-    # if data:
-    #     session.query(Price).filter(Price.item_id.ilike(item.id[0])).update({"sell": price},
-    #                                                                         synchronize_session='fetch')
-    #     session.query(Status).filter(Status.item_id.ilike(item.id[0])).update({"status": 'trad'},
-    #                                                                           synchronize_session='fetch')
-    #     session.query(Price).filter(Price.item_id.ilike(item.id[0])).update({"counter": 0},
-    #                                                                         synchronize_session='fetch')
-    #     session.commit()
-    #     print(item.name)
-    # return
-    # else:
-    # data = trader.sell(item, price)
-    # if not data:
-    #     return False
-    # if data:
-    #
-    #     session.query(Price).filter(Price.item_id.ilike(item.id[0])).update({"sell": price},
-    #                                                                         synchronize_session='fetch')
-    #     session.query(Status).filter(Status.item_id.ilike(item.id[0])).update({"status": 'trad'},
-    #                                                                           synchronize_session='fetch')
-    #     session.query(Price).filter(Price.item_id.ilike(item.id[0])).update({"counter": 0},
-    #                                                                         synchronize_session='fetch')
-    #     session.commit()
-    #
-    #
-    #     print(item.name)
-    # return
-    # session.query(Price).filter(Price.item_id.ilike(item.id[0])).update({"counter": Price.counter + 1},
-    # synchronize_session='fetch')
-    # session.commit()
-    # print(f'НЕВЫСТАВИЛИ  {item.name} {item.href}')
+    if data:
+        session.query(Items)\
+            .filter(
+            Items.id == item.id[0],
+            Items.id == Price.item_id,
+            Items.id == Status.item_id) \
+            .update(
+            {Price.sell: price, Status.status: 'trad', },
+            synchronize_session='fetch'
+        )
+        session.commit()
+        print(item.name)
+        return
+    else:
+        data = trader.sell(item, price)
+    if data:
+        session.query(Items) \
+            .filter(
+            Items.id == item.id[0],
+            Items.id == Price.item_id,
+            Items.id == Status.item_id) \
+            .update(
+            {Price.sell: price, Status.status: 'trad', },
+            synchronize_session='fetch'
+        )
+        print(item.name)
+        return
+    session.query(Price).filter(Price.item_id.ilike(item.id[0])).update({"counter": Price.counter + 1},
+    synchronize_session='fetch')
+    session.commit()
+    print(f'НЕВЫСТАВИЛИ  {item.name} {item.href}')
 
 
 trader.ping_pong()
@@ -138,7 +133,7 @@ while True:
 
     traderss = trader.remove_all_from_sale()
     bb = trader.all_sell()
-    #result = chech_my_price()
+    # result = chech_my_price()
     for intem_50 in chunks(result, 50):
         trader.search_item_by_name_50(intem_50)
 
@@ -154,7 +149,7 @@ while True:
             # for i in aa:
             #     print(i)
             # sss = all_data.filter(Items.id)
-            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
                 sssss = executor.map(traders, result)
                 return
         except:
@@ -165,5 +160,3 @@ while True:
     session.connection()
     print("--- %s seconds ---" % (time.time() - start_time))
     time.sleep(240)
-
-
