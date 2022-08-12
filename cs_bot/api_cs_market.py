@@ -66,7 +66,7 @@ class RequestsCS:
             print('Не продали:', item.name, data)
             return False
         item.id_sell = data['item_id']
-        print(item.name)
+        #print(item.name)
         return data
         # if data['success']:
         #     cursor = self.connect_bd.cursor()

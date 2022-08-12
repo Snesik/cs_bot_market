@@ -1,3 +1,4 @@
+import datetime
 import time
 from cs_bot.models_API import Inventory
 from bd.models import Items, Price, Status, engine_bd_cs, engine_bd_full_base
@@ -100,7 +101,7 @@ def traders(item):
             synchronize_session='fetch'
         )
         session.commit()
-        print(item.name)
+        #print(item.name)
         return
     else:
         data = trader.sell(item, price)
@@ -114,7 +115,7 @@ def traders(item):
             {Price.sell: price, Status.status: 'trad', },
             synchronize_session='fetch'
         )
-        print(item.name)
+        #print(item.name)
         return
     session.query(Price).filter(Price.item_id.ilike(item.id[0])).update({"counter": Price.counter + 1},
     synchronize_session='fetch')
@@ -138,7 +139,7 @@ while True:
         trader.search_item_by_name_50(intem_50)
 
     # aa = AsynseRequests(result)
-    from tqdm import tqdm
+
 
     start_time = time.time()
 
@@ -149,8 +150,10 @@ while True:
             # for i in aa:
             #     print(i)
             # sss = all_data.filter(Items.id)
+            from tqdm import tqdm
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                sssss = executor.map(traders, result)
+                print(f'Выставляем лоты на продажу, TOTAL: {len(result)}', ' TIME: ', datetime.datetime.now())
+                sssss = list(tqdm(executor.map(traders, result), unit=' Лот', colour='green'))
                 return
         except:
             print()
