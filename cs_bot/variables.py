@@ -1,4 +1,4 @@
-from cs_bot.utils import read_yaml
+from utils import read_yaml
 
 config = read_yaml('config.yaml')
 

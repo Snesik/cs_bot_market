@@ -1,6 +1,6 @@
 import aiohttp
 import asyncio
-from cs_bot.api_cs_market import RequestsCS
+from api_cs_market import RequestsCS
 
 # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 a = RequestsCS()

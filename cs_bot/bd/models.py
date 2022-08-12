@@ -1,12 +1,14 @@
-from cs_bot.variables import CONNECTION_BD_CS, CONNECTION_BD_FULL_BASE
+from variables import CONNECTION_BD_CS, CONNECTION_BD_FULL_BASE
 from sqlalchemy import String, Column, DateTime, Float, BigInteger, ForeignKey, Integer, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship, backref, sessionmaker, scoped_session
 from datetime import datetime
 
 Base = declarative_base()
 engine_bd_cs = create_engine(CONNECTION_BD_CS)
-engine_bd_full_base = create_engine(CONNECTION_BD_FULL_BASE)
+engine_bd_full_base = sessionmaker(create_engine(CONNECTION_BD_FULL_BASE))
+Session_bd = scoped_session(engine_bd_full_base)
+
 
 # class BaseModel(Base):
 #     __abstract__ = True

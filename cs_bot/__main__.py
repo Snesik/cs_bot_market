@@ -1,10 +1,10 @@
 import datetime
 import time
-from cs_bot.models_API import Inventory
-from bd.models import Items, Price, Status, engine_bd_cs, engine_bd_full_base
+from models_API import Inventory
+from bd.models import Items, Price, Status, engine_bd_cs, engine_bd_full_base, Session_bd
 from api_cs_market import RequestsCS
-from cs_bot.models import SellInfo
-from cs_bot.utils import chunks
+from models import SellInfo
+from utils import chunks
 from tqdm.contrib.concurrent import process_map
 from sqlalchemy import update, select
 from sqlalchemy.orm import Session
@@ -91,30 +91,35 @@ def traders(item):
                 print(item.name)
     data = trader.sell(item, price)
     if data:
-        session.query(Items)\
-            .filter(
-            Items.id == item.id[0],
-            Items.id == Price.item_id,
-            Items.id == Status.item_id) \
-            .update(
-            {Price.sell: price, Status.status: 'trad', },
-            synchronize_session='fetch'
-        )
-        session.commit()
+        with Session_bd() as session_s:
+            session_s.query(Items) \
+                .filter(
+                Items.id == item.id[0],
+                Items.id == Price.item_id,
+                Items.id == Status.item_id) \
+                .update(
+                {Price.sell: price, Status.status: 'trad', },
+                synchronize_session='fetch'
+            )
+            session_s.commit()
+            session_s.remove()
         #print(item.name)
         return
     else:
         data = trader.sell(item, price)
     if data:
-        session.query(Items) \
-            .filter(
-            Items.id == item.id[0],
-            Items.id == Price.item_id,
-            Items.id == Status.item_id) \
-            .update(
-            {Price.sell: price, Status.status: 'trad', },
-            synchronize_session='fetch'
-        )
+        with Session_bd() as session_s:
+            session_s.query(Items) \
+                .filter(
+                Items.id == item.id[0],
+                Items.id == Price.item_id,
+                Items.id == Status.item_id) \
+                .update(
+                {Price.sell: price, Status.status: 'trad', },
+                synchronize_session='fetch'
+            )
+            session_s.commit()
+            session_s.remove()
         #print(item.name)
         return
     session.query(Price).filter(Price.item_id.ilike(item.id[0])).update({"counter": Price.counter + 1},
@@ -151,10 +156,15 @@ while True:
             #     print(i)
             # sss = all_data.filter(Items.id)
             from tqdm import tqdm
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                print(f'Выставляем лоты на продажу, TOTAL: {len(result)}', ' TIME: ', datetime.datetime.now())
-                sssss = list(tqdm(executor.map(traders, result), unit=' Лот', colour='green'))
-                return
+            from tqdm.contrib.concurrent import thread_map
+            from tqdm.contrib.concurrent import process_map
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                print(f'Выставляем лоты на продажу, TOTAL: {len(result)}  TIME: {datetime.datetime.now()}')
+                sssss = list(tqdm(executor.map(traders, result),
+                                  unit=' Лот', colour='green',
+                                  total=len(result)))
+            #thread_map(traders, result, max_workers=5)
+            return
         except:
             print()
 

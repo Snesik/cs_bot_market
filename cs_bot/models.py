@@ -1,5 +1,5 @@
-from cs_bot.variables import STEAM_ID
-from cs_bot.utils import bild_href, time_block
+from variables import STEAM_ID
+from utils import bild_href, time_block
 from pydantic import BaseModel
 
 # class Inventory:
