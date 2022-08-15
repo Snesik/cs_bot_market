@@ -1,10 +1,6 @@
-from variables import STEAM_ID
 from utils import bild_href, time_block
 from pydantic import BaseModel
-
-# class Inventory:
-#     def __init__(self):
-#         self.steam_id = STEAM_ID
+from typing import List
 
 
 class SellInfo:
@@ -39,14 +35,22 @@ class SellInfo:
         return self.name
 
 
-class Offert:
-    """Передаем 1 экземляр из списка, полученого от API"""
+class Item(BaseModel):
+    appid: int
+    contextid: int
+    assetid: str
+    amount: int
 
-    def __init__(self, data):
-        self.id = [asset['assetid'] for asset in data['items']]
-        self.partner = data['partner']
-        self.message = data['tradeoffermessage']
 
-    def __str__(self):
-        return str(self.partner)
+class Offer(BaseModel):
+    hash: str
+    partner: int
+    token: str
+    tradeoffermessage: str
+    items: List[Item]
+    created: bool
 
+
+class ItemsConfirm(BaseModel):
+    success: bool
+    offers: List[Offer]
