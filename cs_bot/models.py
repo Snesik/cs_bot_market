@@ -1,5 +1,5 @@
 from utils import bild_href, time_block
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List
 
 
@@ -21,9 +21,11 @@ class SellInfo:
         self.sell_orders = []
 
     def min_price(self):
+        """Прайм тайм продаж"""
         return self.avg_result - (self.avg_result * time_block())
 
     def range_price(self):
+        """Расчет стака цен на предмет"""
         we_send_price = self.sell_orders[0] - 0.01
         stack = 0
         for i in self.sell_orders:
@@ -36,6 +38,7 @@ class SellInfo:
 
 
 class Item(BaseModel):
+    """Предметы для передачи"""
     appid: int
     contextid: int
     assetid: str
@@ -43,6 +46,7 @@ class Item(BaseModel):
 
 
 class Offer(BaseModel):
+    """Офферты"""
     hash: str
     partner: int
     token: str
@@ -52,5 +56,12 @@ class Offer(BaseModel):
 
 
 class ItemsConfirm(BaseModel):
+    """Класс для работы с портверждением"""
     success: bool
     offers: List[Offer]
+
+
+class ItemSteamConfirm(BaseModel):
+    data_confid: str = Field(alias="data-confid")
+    data_key: str = Field(alias="data-key")
+    name: str
