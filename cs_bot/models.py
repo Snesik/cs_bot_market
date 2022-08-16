@@ -62,6 +62,8 @@ class ItemsConfirm(BaseModel):
 
 
 class ItemSteamConfirm(BaseModel):
-    data_confid: str = Field(alias="data-confid")
-    data_key: str = Field(alias="data-key")
+    data_confid: str
+    data_key: str
     name: str
+
+
