@@ -66,5 +66,5 @@ class ItemSteamConfirm(BaseModel):
     data_confid: str
     data_key: str
     name: str
-
+    data_accept: str
 
