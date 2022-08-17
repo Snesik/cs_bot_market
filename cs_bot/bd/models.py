@@ -22,9 +22,11 @@ Session_full_base = sessionmaker(create_engine(CONNECTION_BD_FULL_BASE))
 class Items(Base):
     __tablename__ = 'items'
     id = Column(BigInteger(), primary_key=True, index=True)
+    hash_name = Column(String(200), nullable=False)
     name = Column(String(200), nullable=False)
     class_id = Column(BigInteger(), nullable=False)
     instance_id = Column(Integer(), nullable=False)
+
     price = relationship('Price', backref='Items', uselist=False)
     status = relationship('Status', backref="items", uselist=False)
 

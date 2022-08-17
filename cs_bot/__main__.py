@@ -5,6 +5,7 @@ from bd.models import Items, Price, Status, Session_cs, Session_full_base
 from api_cs_market import RequestsCS
 from models import SellInfo
 from utils import chunks
+from variables import STEAM_LOGIN_ID
 import requests
 import concurrent.futures
 from tqdm import tqdm
@@ -12,33 +13,37 @@ from tqdm import tqdm
 trader = RequestsCS()
 
 
-def find_instance_id(asset_id):
-    head = {'Referer': f"https://steamcommunity.com/profiles/76561198073787208/inventory"}
-    all_intem = requests.get('https://steamcommunity.com/inventory/76561198073787208/730/2?l=russian&count=5000',
+def request_inventory_steam():
+    head = {'Referer': f"https://steamcommunity.com/profiles/{STEAM_LOGIN_ID}/inventory"}
+    all_intem = requests.get(f'https://steamcommunity.com/inventory/{STEAM_LOGIN_ID}/730/2?l=russian&count=5000',
                              headers=head).json()
-    return [item['instanceid'] for item in all_intem['assets']
-            if item['assetid'] == asset_id and item['instanceid'] != 0][0]
+    return all_intem
 
+
+def find_instance_id_and_name(item_look, inventory_steam):
+    instanceid = [item['instanceid'] for item in inventory_steam['assets']
+                  if item['assetid'] == item_look.id][0]
+    name = [item['name'] for item in inventory_steam['descriptions']
+            if item['market_hash_name'] == item_look.market_hash_name][0]
+    return instanceid, name
+
+
+# 'descriptions'
 
 def add_in_bd(inventory_items: list[Inventory]) -> None:
+    all_cs_inventory = request_inventory_steam()
     with Session_cs() as session:
         lots_in_bd = [str(i[0]) for i in session.query(Items.id).all()]
-
         that_we_add_in_bd = [i for i in inventory_items if not i.id in lots_in_bd]
         print(f'Добавления лотов в базу.  TIME: {datetime.datetime.now()}')
         for i in tqdm(that_we_add_in_bd, total=len(that_we_add_in_bd)):
-            if i.instanceid == '0':
-                result = find_instance_id(i.id)
-                if result is None:
-                    i.instanceid = 0
-                else:
-                    i.instanceid = result
-
+            instanceid, name = find_instance_id_and_name(i, all_cs_inventory)
             intem = Items(
                 id=i.id,
-                name=i.market_hash_name,
+                name=name,
+                hash_name=i.market_hash_name,
                 class_id=i.classid,
-                instance_id=i.instanceid
+                instance_id=instanceid
             )
             price = Price(item_id=i.id)
             status = Status(item_id=i.id)
@@ -48,7 +53,7 @@ def add_in_bd(inventory_items: list[Inventory]) -> None:
 
 def chech_my_price(list_item_id) -> list:
     with Session_cs() as session:
-        result_bd = session.query(Items.name, Items.id, Items.class_id, Price.sell, Items.instance_id) \
+        result_bd = session.query(Items.hash_name, Items.id, Items.class_id, Price.sell, Items.instance_id) \
             .filter(Items.id == Price.item_id) \
             .filter(Items.id.in_(list_item_id)) \
             .all()
@@ -59,7 +64,7 @@ def chech_my_price(list_item_id) -> list:
             all_inv_item.append(SellInfo(*one_result))
             continue
         for item in all_inv_item:
-            if item.name == one_result[0]:
+            if item.hash_name == one_result[0]:
                 if item.id == one_result[1]:
                     break
                 else:

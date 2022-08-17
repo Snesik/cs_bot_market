@@ -16,4 +16,4 @@ STEAM_ID = config['steam_id']
 """Для подтверждения сделок"""
 ANDROID = config['config']['android']
 IDENTITY_SECRET = config['config']['identity_secret']
-STEAM_LOGIN_SEC = config['config']['steam_login_sec']
+STEAM_LOGIN_ID = config['config']['steam_login_sec']

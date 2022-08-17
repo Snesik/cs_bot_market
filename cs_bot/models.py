@@ -9,7 +9,7 @@ class SellInfo:
     """
 
     def __init__(self, name, id, class_id, sell_bd, instanse_id):
-        self.name = name
+        self.hash_name = name
         self.id = [str(id)]
         self.class_id = class_id
         self.sell_bd = sell_bd
@@ -38,7 +38,7 @@ class SellInfo:
 
 
 class Item(BaseModel):
-    """Предметы для передачи"""
+    """Предметы для передачи получаем с КС маркета"""
     appid: int
     contextid: int
     assetid: str
@@ -46,7 +46,7 @@ class Item(BaseModel):
 
 
 class Offer(BaseModel):
-    """Офферты"""
+    """Офферты получаем с КС маркета"""
     hash: str
     partner: int
     token: str
@@ -56,12 +56,13 @@ class Offer(BaseModel):
 
 
 class ItemsConfirm(BaseModel):
-    """Класс для работы с портверждением"""
+    """Класс для работы с портверждением, получаем с КС маркета"""
     success: bool
     offers: List[Offer]
 
 
 class ItemSteamConfirm(BaseModel):
+    """Класс для работы с портверждением, получаем с STEAM из аунтификатора"""
     data_confid: str
     data_key: str
     name: str

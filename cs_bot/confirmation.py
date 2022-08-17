@@ -76,11 +76,11 @@ class ConfirmationExecutor:
         soup = BeautifulSoup(confirmations_page, 'html.parser')
         for item in soup.select('.mobileconf_list_entry'):
             item.attrs['name'] = re.findall('Обменять (.+?) на ', item.text)[0]
-            a = ItemSteamConfirm(data_confid=item.attrs['data-confid'],
+            confirmations.append(ItemSteamConfirm(data_confid=item.attrs['data-confid'],
                                  data_key=item.attrs['data-key'],
                                  name=item.attrs['name']
-                                 )
-            print(a)
+                                 ))
+            print()
 
         for confirmation_div in soup.select('#mobileconf_list .mobileconf_list_entry'):
             _id = confirmation_div['id']

@@ -5,6 +5,8 @@ from models import ItemsConfirm
 from variables import IDENTITY_SECRET, STEAM_ID, ANDROID
 from auth_bots import *
 
+
+
 session = creation_session_bots()['_kornelius_']
 
 confirm = RequestsCS()
