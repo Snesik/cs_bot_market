@@ -1,5 +1,5 @@
 from utils import bild_href, time_block
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List
 
 
@@ -7,7 +7,6 @@ class SellInfo:
     """Класс предмета из инвентаря, добавляются все действия информация из:
         БД + Sell + Offerts + Количество в наличие
     """
-
     def __init__(self, name, id, class_id, sell_bd, instanse_id):
         self.hash_name = name
         self.id = [str(id)]
@@ -33,8 +32,8 @@ class SellInfo:
                 stack += 1
         return stack
 
-    def __str__(self):
-        return self.name
+    def __repr__(self):
+        return f'name: {self.hash_name} id: {len(self.id)} '
 
 
 class Item(BaseModel):
@@ -46,7 +45,7 @@ class Item(BaseModel):
 
 
 class Offer(BaseModel):
-    """Офферты получаем с КС маркета"""
+    """Оферты получаем с КС маркета"""
     hash: str
     partner: int
     token: str
@@ -56,15 +55,14 @@ class Offer(BaseModel):
 
 
 class ItemsConfirm(BaseModel):
-    """Класс для работы с портверждением, получаем с КС маркета"""
+    """Класс для работы с подтверждением, получаем с КС маркета"""
     success: bool
     offers: List[Offer]
 
 
 class ItemSteamConfirm(BaseModel):
-    """Класс для работы с портверждением, получаем с STEAM из аунтификатора"""
+    """Класс для работы с подтверждением, получаем с STEAM из аутентификатора"""
     data_confid: str
     data_key: str
     name: str
     data_accept: str
-

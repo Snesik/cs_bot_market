@@ -1,6 +1,7 @@
-from bd.models import Session_cs, Items
+from bd import Session_cs
+from bd.models import Items
 from confirmation import ConfirmationExecutor
-from api_cs_market import RequestsCS
+from api_cs.api_cs_market import RequestsCS
 from models import ItemsConfirm
 from variables import IDENTITY_SECRET, STEAM_ID, ANDROID
 from auth_bots import *
@@ -25,7 +26,7 @@ bb = ConfirmationExecutor(
     identity_secret=IDENTITY_SECRET,
     my_steam_id=STEAM_ID,
     session=session,
-    adnroid=ANDROID,
-    items_confirm=data_bd).confirm_sell_listing()
+    android=ANDROID,
+    items_confirm=data_bd).send_trade_allow_request()
 
 print()

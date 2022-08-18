@@ -1,10 +1,10 @@
 import requests
 from cs_bot.variables import API_CS_KEY, API_STEAM_KEY
-from cs_bot.models_API import Inventory, Items
+from api_cs.models import Inventory, Items
 
 
 class RequestsCS:
-    """Обращениея по API"""
+    """Класс API CS market"""
     v1 = 'https://market.csgo.com/api'
     v2 = 'https://market.csgo.com/api/v2'
 
@@ -66,20 +66,11 @@ class RequestsCS:
             print('Не продали:', item.name, data)
             return False
         item.id_sell = data['item_id']
-        #print(item.name)
         return data
-        # if data['success']:
-        #     cursor = self.connect_bd.cursor()
-        #     cursor.execute('UPDATE market_cs SET id_item = %s, status = "sale" where id_market = %s',
-        #                    [data['item_id'], id_item])
-        #     self.connect_bd.commit()
-        #     cursor.close()
-        # else:
-        #     print(f'{id_item} Failed')
 
-    def all_order_item(self, classid: str, instanceid: str):
+    def all_order_item(self, class_id: str, instance_id: str):
         """Все ордера на продажу"""
-        return requests.get(f'{self.v1}/SellOffers/{classid}_{instanceid}/?key={self._cs_api}').json()
+        return requests.get(f'{self.v1}/SellOffers/{class_id}_{instance_id}/?key={self._cs_api}').json()
 
     def search_item_by_name(self, hash_name: str):
         """Поиск предмета по hash имени"""
@@ -91,11 +82,8 @@ class RequestsCS:
         data1 = ''
         for i in data:
             data1 += f'&list_hash_name[]=' + i.name
-            # if data.index(i) % 5 == 0:
         a.update(requests.get(f'{self.v2}/search-list-items-by-hash-name-all?'
                               f'key={self._cs_api}&extended=1{data1}').json()['data'])
-        data1 = ''
-        # time.sleep(0.25)
         for i in data:
             if i.name in a:
                 i.sell_orders = [float(item['price']) / 100 for item in a[i.name]]
@@ -116,7 +104,7 @@ class RequestsCS:
                 i.sell_orders = [float(i.avg_result * 0.4 + i.avg_result)]
 
     def trade_request_all(self):
-        """Все трейды что нужно потвердить приходит LIST( {'appid', 'contextid', 'assetid'(при попадения
+        """Все сделки, которые нужно подтвердить, приходит LIST( {'appid', 'context_id', 'assetid'(при подпадении
          можно найти в инвентаре при нажатии правой кнопкой мыши), 'amount'}"""
         return requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}').json()
 
@@ -132,5 +120,5 @@ class RequestsCS:
         a = trader.history({"list": [dd]})"""
         return requests.post(f'{self.v1}/MassInfo/0/0/0/1?key={self._cs_api}', data=items).json()
 
-    def item_info(self, classid: str, instanceid: str):
-        return requests.get(f'{self.v1}/ItemInfo/{classid}_{instanceid}/ru/?key={self._cs_api}').json()
+    def item_info(self, class_id: str, instance_id: str):
+        return requests.get(f'{self.v1}/ItemInfo/{class_id}_{instance_id}/ru/?key={self._cs_api}').json()

@@ -1,34 +1,33 @@
 import datetime
 import time
-from cs_bot.models_API import Inventory
-from cs_bot.bd.models import Items, Price, Status, Session_cs, Session_full_base
-from cs_bot.api_cs_market import RequestsCS
-from cs_bot.models import SellInfo
-from cs_bot.utils import chunks
-from variables import STEAM_LOGIN_ID
 import requests
 import concurrent.futures
 from tqdm import tqdm
+from bd import Session_cs, Session_full_base
+from api_cs.models import Inventory
+from api_cs.api_cs_market import RequestsCS
+from cs_bot.bd.models import Items, Price, Status
+from cs_bot.models import SellInfo
+from cs_bot.utils import chunks
+from variables import STEAM_LOGIN_ID
 
 trader = RequestsCS()
 
 
 def request_inventory_steam():
     head = {'Referer': f"https://steamcommunity.com/profiles/{STEAM_LOGIN_ID}/inventory"}
-    all_intem = requests.get(f'https://steamcommunity.com/inventory/{STEAM_LOGIN_ID}/730/2?l=russian&count=5000',
-                             headers=head).json()
-    return all_intem
+    all_item = requests.get(f'https://steamcommunity.com/inventory/{STEAM_LOGIN_ID}/730/2?l=russian&count=5000',
+                            headers=head).json()
+    return all_item
 
 
 def find_instance_id_and_name(item_look, inventory_steam):
-    instanceid = [item['instanceid'] for item in inventory_steam['assets']
-                  if item['assetid'] == item_look.id][0]
+    instance_id = [item['instanceid'] for item in inventory_steam['assets']
+                   if item['assetid'] == item_look.id][0]
     name = [item['name'] for item in inventory_steam['descriptions']
             if item['market_hash_name'] == item_look.market_hash_name][0]
-    return instanceid, name
+    return instance_id, name
 
-
-# 'descriptions'
 
 def add_in_bd(inventory_items: list[Inventory]) -> None:
     all_cs_inventory = request_inventory_steam()
@@ -37,21 +36,21 @@ def add_in_bd(inventory_items: list[Inventory]) -> None:
         that_we_add_in_bd = [i for i in inventory_items if not i.id in lots_in_bd]
         print(f'Добавления лотов в базу.  TIME: {datetime.datetime.now()}')
         for i in tqdm(that_we_add_in_bd, total=len(that_we_add_in_bd)):
-            instanceid, name = find_instance_id_and_name(i, all_cs_inventory)
-            intem = Items(
+            instance_id, name = find_instance_id_and_name(i, all_cs_inventory)
+            item = Items(
                 id=i.id,
                 name=name,
                 hash_name=i.market_hash_name,
                 class_id=i.classid,
-                instance_id=instanceid
+                instance_id=instance_id
             )
             price = Price(item_id=i.id)
             status = Status(item_id=i.id)
-            session.add_all([intem, price, status])
+            session.add_all([item, price, status])
             session.commit()
 
 
-def chech_my_price(list_item_id) -> list:
+def check_my_price(list_item_id) -> list:
     with Session_cs() as session:
         result_bd = session.query(Items.hash_name, Items.id, Items.class_id, Price.sell, Items.instance_id) \
             .filter(Items.id == Price.item_id) \
@@ -74,8 +73,8 @@ def chech_my_price(list_item_id) -> list:
             all_inv_item.append(SellInfo(*one_result))
     request_in_bd = tuple([item.href for item in all_inv_item])
     with Session_full_base() as session_full_base:
-        result = session_full_base.execute(f'SELECT ss, avg_result, low_avg FROM cs WHERE ss in {request_in_bd}')
-    result = [row for row in result]
+        result_bd = session_full_base.execute(f'SELECT ss, avg_result, low_avg FROM cs WHERE ss in {request_in_bd}')
+    result = [row for row in result_bd]
     for i in result:
         for item in all_inv_item:
             if item.href == i[0]:
@@ -90,7 +89,6 @@ def chech_my_price(list_item_id) -> list:
 
 def traders(item):
     price = round((item.sell_orders[0] - 0.01), 2)
-    # data = trader.sell(item, price)
     if price > item.low_avg:
         if price < item.min_price():
             if item.range_price() > 5:
@@ -108,7 +106,6 @@ def traders(item):
                 synchronize_session='fetch'
             )
             session.commit()
-        # print(item.name)
         return
     else:
         data = trader.sell(item, price)
@@ -120,12 +117,10 @@ def traders(item):
                 Items.id == Price.item_id,
                 Items.id == Status.item_id) \
                 .update(
-                {Price.sell: price, Price.min_price: item.min_price(),  Status.status: 'trad', },
+                {Price.sell: price, Price.min_price: item.min_price(), Status.status: 'trad', },
                 synchronize_session='fetch'
             )
             session.commit()
-
-        # print(item.name)
         return
     with Session_cs() as session:
         session.query(Price).filter(Price.item_id.ilike(item.id[0])).update({"counter": Price.counter + 1},
@@ -139,40 +134,27 @@ trader.test()
 trader.update_inv()
 while True:
     add_in_bd(trader.my_inventory())
-    result = chech_my_price([i.id for i in trader.my_inventory()])
-    # session = Session(bind=engine_bd_cs)
-    # session_full_base = Session(bind=engine_bd_full_base)
+    result_my_price = check_my_price([i.id for i in trader.my_inventory()])
+    response_remove = trader.remove_all_from_sale()
 
-    traderss = trader.remove_all_from_sale()
-    #bb = trader.all_sell()
-    #result = chech_my_price()
-    for intem_50 in chunks(result, 50):
-        trader.search_item_by_name_50(intem_50)
-
-    # aa = AsynseRequests(result)
+    for item_50 in chunks(result_my_price, 50):
+        trader.search_item_by_name_50(item_50)
 
     start_time = time.time()
 
 
-    def run(traders, result):
+    def run(func, result):
         try:
-            # aa = session.query(Items)
-            # for i in aa:
-            #     print(i)
-            # sss = all_data.filter(Items.id)
-
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 print(f'Выставляем лоты на продажу,  TIME: {datetime.datetime.now()}')
-                sssss = list(tqdm(executor.map(traders, result),
-                                  unit=' Лот', colour='green',
-                                  total=len(result)))
-            # thread_map(traders, result, max_workers=5)
+                list(tqdm(executor.map(func, result),
+                          unit=' Лот', colour='green',
+                          total=len(result)))
             return
         except Exception as error:
             print(error)
 
 
-    a = run(traders, result)
-    # session.connection()
+    run(traders, result_my_price)
     print("--- %s seconds ---" % (time.time() - start_time))
     time.sleep(240)

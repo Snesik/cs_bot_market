@@ -1,6 +1,6 @@
 import time
 
-from api_cs_market import RequestsCS
+from api_cs.api_cs_market import RequestsCS
 
 
 def send_ping():

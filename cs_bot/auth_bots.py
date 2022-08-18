@@ -3,8 +3,7 @@ import requests
 import pickle
 import requests.cookies
 import os
-
-
+import time
 from urllib3.util.retry import Retry
 from steampy.login import LoginExecutor
 from collections import defaultdict
@@ -20,14 +19,20 @@ path = os.path.abspath('')
 # path = os.path.abspath('Bot/cookes/')
 session = {}
 
+
 def create_session_id_cookie(name: str, value: str) -> dict:
     return {"name": f"{name}",
             "value": value,
             "domain": SteamUrl.COMMUNITY_URL[8:]}
+
+
 """Список ботов"""
+
+
 class SteamUrl:
     COMMUNITY_URL = "https://steamcommunity.com"
     STORE_URL = 'https://store.steampowered.com'
+
 
 def take_info_bots(path):
     with open(path + '/cookes/setting.txt') as f:
@@ -57,7 +62,8 @@ def take_info_bots(path):
 
     return bots
 
-import time
+
+
 
 from requests.adapters import HTTPAdapter
 
@@ -66,6 +72,7 @@ DEFAULT_TIMEOUT = 10  # seconds
 
 class TimeoutHTTPAdapter(HTTPAdapter):
     """Авто подстановка timeout в сессию"""
+
     def __init__(self, *args, **kwargs):
         self.timeout = DEFAULT_TIMEOUT
         if "timeout" in kwargs:
@@ -79,9 +86,11 @@ class TimeoutHTTPAdapter(HTTPAdapter):
             kwargs["timeout"] = self.timeout
         try:
             return super().send(request, **kwargs)
-        except:
+        except Exception as error:
             time.sleep(6)
             return super().send(request, **kwargs)
+
+
 """Настройка сессии ботов"""
 
 
