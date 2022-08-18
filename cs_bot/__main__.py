@@ -1,10 +1,10 @@
 import datetime
 import time
-from models_API import Inventory
-from bd.models import Items, Price, Status, Session_cs, Session_full_base
-from api_cs_market import RequestsCS
-from models import SellInfo
-from utils import chunks
+from cs_bot.models_API import Inventory
+from cs_bot.bd.models import Items, Price, Status, Session_cs, Session_full_base
+from cs_bot.api_cs_market import RequestsCS
+from cs_bot.models import SellInfo
+from cs_bot.utils import chunks
 from variables import STEAM_LOGIN_ID
 import requests
 import concurrent.futures
@@ -94,7 +94,7 @@ def traders(item):
     if price > item.low_avg:
         if price < item.min_price():
             if item.range_price() > 5:
-                print(item.name)
+                print(item.hash_name)
     data = trader.sell(item, price)
     if data:
         with Session_cs() as session:
@@ -104,7 +104,7 @@ def traders(item):
                 Items.id == Price.item_id,
                 Items.id == Status.item_id) \
                 .update(
-                {Price.sell: price, Status.status: 'trad', },
+                {Price.sell: price, Price.min_price: item.min_price(), Status.status: 'trad', },
                 synchronize_session='fetch'
             )
             session.commit()
@@ -120,7 +120,7 @@ def traders(item):
                 Items.id == Price.item_id,
                 Items.id == Status.item_id) \
                 .update(
-                {Price.sell: price, Status.status: 'trad', },
+                {Price.sell: price, Price.min_price: item.min_price(),  Status.status: 'trad', },
                 synchronize_session='fetch'
             )
             session.commit()
@@ -131,7 +131,7 @@ def traders(item):
         session.query(Price).filter(Price.item_id.ilike(item.id[0])).update({"counter": Price.counter + 1},
                                                                             synchronize_session='fetch')
         session.commit()
-    print(f'НЕВЫСТАВИЛИ  {item.name} {item.href}')
+    print(f'НЕВЫСТАВИЛИ  {item.hash_name} {item.href}')
 
 
 trader.ping_pong()
@@ -144,8 +144,8 @@ while True:
     # session_full_base = Session(bind=engine_bd_full_base)
 
     traderss = trader.remove_all_from_sale()
-    bb = trader.all_sell()
-    # result = chech_my_price()
+    #bb = trader.all_sell()
+    #result = chech_my_price()
     for intem_50 in chunks(result, 50):
         trader.search_item_by_name_50(intem_50)
 
@@ -168,8 +168,8 @@ while True:
                                   total=len(result)))
             # thread_map(traders, result, max_workers=5)
             return
-        except:
-            print()
+        except Exception as error:
+            print(error)
 
 
     a = run(traders, result)

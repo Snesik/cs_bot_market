@@ -125,7 +125,7 @@ def dump_cookies(session, filename):
             "path": c.path,
             "expires": c.expires
         })
-    with open(path + '/cookes/' + filename, 'wb') as f:
+    with open(path + '\cookes\\' + filename, 'wb') as f:
         pickle.dump(cookies, f)
 
 

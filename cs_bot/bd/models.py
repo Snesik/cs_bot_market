@@ -1,4 +1,4 @@
-from variables import CONNECTION_BD_CS, CONNECTION_BD_FULL_BASE
+from cs_bot.variables import CONNECTION_BD_CS, CONNECTION_BD_FULL_BASE
 from sqlalchemy import String, Column, DateTime, Float, BigInteger, ForeignKey, Integer, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref, sessionmaker, scoped_session

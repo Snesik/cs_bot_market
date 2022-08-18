@@ -1,6 +1,6 @@
 import requests
-from variables import API_CS_KEY, API_STEAM_KEY
-from models_API import Inventory, Items
+from cs_bot.variables import API_CS_KEY, API_STEAM_KEY
+from cs_bot.models_API import Inventory, Items
 
 
 class RequestsCS:
@@ -106,12 +106,12 @@ class RequestsCS:
     def search_item_by_name_50(self, data: list) -> None:
         """Запрос 50 предметов за раз"""
 
-        complete_50_items = '&list_hash_name[]='.join(set([i.name for i in data]))
+        complete_50_items = '&list_hash_name[]='.join(set([i.hash_name for i in data]))
         response = requests.get(f'{self.v2}/search-list-items-by-hash-name-all?'
                                 f'key={self._cs_api}&list_hash_name[]={complete_50_items}').json()['data']
         for i in data:
-            if i.name in response:
-                i.sell_orders = [float(item['price']) / 100 for item in response[i.name]]
+            if i.hash_name in response:
+                i.sell_orders = [float(item['price']) / 100 for item in response[i.hash_name]]
             else:
                 i.sell_orders = [float(i.avg_result * 0.4 + i.avg_result)]
 

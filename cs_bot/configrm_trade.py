@@ -9,22 +9,19 @@ session = creation_session_bots()['_kornelius_']
 
 confirm = RequestsCS()
 
-# a = confirm.trade_request_all()
-# items_confirm = ItemsConfirm(**a)
-#
-#
-# with Session_cs() as _session:
-#     name_in_base = [b.assetid for i in items_confirm.offers for b in i.items]
-#     data_bd = _session.query(Items)\
-#         .filter(Items.id.in_(name_in_base))\
-#         .all()
+a = confirm.trade_request_all()
+if a['success']:
+    items_confirm = ItemsConfirm(**a)
+else:
+    raise print('error')
 
-    # for i in items_confirm.offers:
-    #     for i1 in i.items:
-    #         i1.name = [appid[1] for appid in data_bd if appid[0] == i1.assetid][0]
+with Session_cs() as _session:
+    name_in_base = [b.assetid for i in items_confirm.offers for b in i.items]
+    data_bd = _session.query(Items) \
+        .filter(Items.id.in_(name_in_base)) \
+        .all()
 
-data_bd = []
-ConfirmationExecutor(
+bb = ConfirmationExecutor(
     identity_secret=IDENTITY_SECRET,
     my_steam_id=STEAM_ID,
     session=session,
