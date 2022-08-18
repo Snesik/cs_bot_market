@@ -7,6 +7,7 @@ class SellInfo:
     """Класс предмета из инвентаря, добавляются все действия информация из:
         БД + Sell + Offerts + Количество в наличие
     """
+
     def __init__(self, name, id, class_id, sell_bd, instanse_id):
         self.hash_name = name
         self.id = [str(id)]
@@ -66,3 +67,4 @@ class ItemSteamConfirm(BaseModel):
     data_key: str
     name: str
     data_accept: str
+    id: str

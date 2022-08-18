@@ -18,10 +18,13 @@ class Tag(enum.Enum):
 class ConfirmationExecutor:
     CONF_URL = "https://steamcommunity.com/mobileconf"
 
-    def __init__(self, identity_secret: str,
+    def __init__(self,
+                 identity_secret: str,
                  my_steam_id: str,
                  session: requests.Session,
-                 android: str, items_confirm: list) -> None:
+                 android: str,
+                 items_confirm: list
+                 ) -> None:
 
         self._my_steam_id = my_steam_id
         self._identity_secret = identity_secret
@@ -39,21 +42,13 @@ class ConfirmationExecutor:
                     break
 
         self._multi_confirm_trans(we_confirm)
+        for i in we_confirm:
+            for i2 in self._items_confirm:
+                if i.name == i2.name:
+                    i.id = i2.id
+                    break
+        a = [i[0] for i in we_confirm for i2 in self._items_confirm if i.name == i2.name]
         return we_confirm
-
-    def _send_confirmation(self, data):
-        tag = Tag.ALLOW
-        try:
-            params = self._create_confirmation_params(tag.value)
-            params['cid'] = []
-            params['ck'] = []
-            for i in data:
-                params['cid'].append(i.data_confid)
-                params['ck'].append(i.data_key)
-            headers = {'X-Requested-With': 'XMLHttpRequest'}
-            return self._session.get(self.CONF_URL + '/multiajaxop', params=params, headers=headers).json()
-        except Exception as error:
-            return f'Ошибка: {error}'
 
     def _get_confirmations(self) -> List:
         result = []
@@ -66,7 +61,8 @@ class ConfirmationExecutor:
                 data_confid=item.attrs['data-confid'],
                 data_key=item.attrs['data-key'],
                 name=item.attrs['name'],
-                data_accept=item.attrs['data-accept']
+                data_accept=item.attrs['data-accept'],
+                id=[i[0] for i in self._items_confirm if i.name == item.attrs['name']]
             ))
         return result
 
@@ -74,7 +70,8 @@ class ConfirmationExecutor:
         tag = Tag.CONF.value
         params = self._create_confirmation_params(tag)
         headers = {'X-Requested-With': 'com.valvesoftware.android.steam.community'}
-        response = self._session.get('https://steamcommunity.com/mobileconf/conf', params=params, headers=headers).text
+        response = self._session.get('https://steamcommunity.com/mobileconf/conf',
+                                     params=params, headers=headers, timeout=60).text
         return response
 
     def _fetch_confirmation_details_page(self, confirmation) -> str:

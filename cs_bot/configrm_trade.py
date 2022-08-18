@@ -22,11 +22,14 @@ with Session_cs() as _session:
         .filter(Items.id.in_(name_in_base)) \
         .all()
 
+
 bb = ConfirmationExecutor(
     identity_secret=IDENTITY_SECRET,
     my_steam_id=STEAM_ID,
     session=session,
     android=ANDROID,
     items_confirm=data_bd).send_trade_allow_request()
+
+
 
 print()
