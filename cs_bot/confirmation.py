@@ -52,9 +52,10 @@ class ConfirmationExecutor:
 
     def _get_confirmations(self) -> list:
         result = []
-        print('Подтверждаем лоты sell')
         confirmations_page = self._fetch_confirmations_page()
         soup = BeautifulSoup(confirmations_page, 'html.parser')
+        if len(soup.select('.mobileconf_list_entry')) == 0:
+            soup = BeautifulSoup(confirmations_page, 'html.parser')
         for item in soup.select('.mobileconf_list_entry'):
             item.attrs['name'] = re.findall('Обменять (.+?) на ', item.text)[0]
             result.append(ItemSteamConfirm(

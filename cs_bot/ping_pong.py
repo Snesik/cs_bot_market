@@ -7,8 +7,7 @@ def send_ping():
     auto_ping_pong = RequestsCS()
     response = auto_ping_pong.ping_pong()
     if response:
-        print('Сплю')
-        time.sleep(5)
+        time.sleep(120)
     else:
         print('что то не так')
         send_ping()
@@ -16,4 +15,7 @@ def send_ping():
 
 if __name__ == "__main__":
     while True:
-        send_ping()
+        try:
+            send_ping()
+        except Exception as error:
+            time.sleep(60)

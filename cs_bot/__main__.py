@@ -54,6 +54,7 @@ def check_my_price(list_item_id) -> list:
     with Session_cs() as session:
         result_bd = session.query(Items.hash_name, Items.id, Items.class_id, Price.sell, Items.instance_id) \
             .filter(Items.id == Price.item_id) \
+            .filter(Items.id == Status.item_id) \
             .filter(Items.id.in_(list_item_id)) \
             .all()
 
@@ -87,12 +88,7 @@ def check_my_price(list_item_id) -> list:
     return all_inv_item
 
 
-def traders(item):
-    price = round((item.sell_orders[0] - 0.01), 2)
-    if price > item.low_avg:
-        if price < item.min_price():
-            if item.range_price() > 5:
-                print(item.hash_name)
+def sell_and_write_in_base(item, price):
     data = trader.sell(item, price)
     if data:
         with Session_cs() as session:
@@ -100,61 +96,67 @@ def traders(item):
                 .filter(
                 Items.id == item.id[0],
                 Items.id == Price.item_id,
-                Items.id == Status.item_id) \
+                Items.id == Status.item_id
+            ) \
                 .update(
-                {Price.sell: price, Price.min_price: item.min_price(), Status.status: 'trad', },
+                {
+                    Price.sell: price, Price.min_price: round(item.min_price(), 2), Price.counter: 0,
+                    Status.status: 'trad'
+                },
                 synchronize_session='fetch'
             )
             session.commit()
+
+
+def traders(item) -> None:
+    price = round((item.sell_orders[0] - 0.01), 2)
+    if item.range_price() > 8:
+        sell_and_write_in_base(item, price)
         return
-    else:
-        data = trader.sell(item, price)
-    if data:
-        with Session_cs() as session:
-            session.query(Items) \
-                .filter(
-                Items.id == item.id[0],
-                Items.id == Price.item_id,
-                Items.id == Status.item_id) \
-                .update(
-                {Price.sell: price, Price.min_price: item.min_price(), Status.status: 'trad', },
-                synchronize_session='fetch'
-            )
-            session.commit()
+    elif price > item.min_price():
+        sell_and_write_in_base(item, price)
         return
     with Session_cs() as session:
-        session.query(Price).filter(Price.item_id.ilike(item.id[0])).update({"counter": Price.counter + 1},
-                                                                            synchronize_session='fetch')
+        session.query(Price) \
+            .filter(Price.item_id == item.id[0]) \
+            .update(
+            {
+                Price.counter: Price.counter + 1, Price.sell: price, Price.min_price: item.min_price()
+            },
+            synchronize_session='fetch')
         session.commit()
-    print(f'НЕВЫСТАВИЛИ  {item.hash_name} {item.href}')
 
 
 trader.ping_pong()
 trader.test()
 trader.update_inv()
 while True:
-    add_in_bd(trader.my_inventory())
-    result_my_price = check_my_price([i.id for i in trader.my_inventory()])
-    response_remove = trader.remove_all_from_sale()
+    try:
+        response_remove = trader.remove_all_from_sale()
+        trader.update_inv()
+        add_in_bd(trader.my_inventory())
+        result_my_price = check_my_price([i.id for i in trader.my_inventory()])
 
-    for item_50 in chunks(result_my_price, 50):
-        trader.search_item_by_name_50(item_50)
+        for item_50 in chunks(result_my_price, 50):
+            trader.search_item_by_name_50(item_50)
 
-    start_time = time.time()
-
-
-    def run(func, result):
-        try:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                print(f'Выставляем лоты на продажу,  TIME: {datetime.datetime.now()}')
-                list(tqdm(executor.map(func, result),
-                          unit=' Лот', colour='green',
-                          total=len(result)))
-            return
-        except Exception as error:
-            print(error)
+        start_time = time.time()
 
 
-    run(traders, result_my_price)
-    print("--- %s seconds ---" % (time.time() - start_time))
-    time.sleep(240)
+        def run(func, result):
+            try:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                    print(f'Выставляем лоты на продажу,  TIME: {datetime.datetime.now()}')
+                    list(tqdm(executor.map(func, result),
+                              unit=' Лот', colour='green',
+                              total=len(result)))
+                return
+            except Exception as error:
+                print(error)
+
+
+        run(traders, result_my_price)
+        print("--- %s seconds ---" % (time.time() - start_time))
+        time.sleep(240)
+    except Exception:
+        time.sleep(240)
