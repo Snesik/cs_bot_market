@@ -1,5 +1,5 @@
 from bd import Session_cs
-from bd.models import Items
+from bd.models import Items, Status
 from confirmation import ConfirmationExecutor
 from cs_bot.api_cs.api import RequestsCS
 from models import ItemsConfirm
@@ -22,7 +22,6 @@ with Session_cs() as _session:
         .filter(Items.id.in_(name_in_base)) \
         .all()
 
-
 bb = ConfirmationExecutor(
     identity_secret=IDENTITY_SECRET,
     my_steam_id=STEAM_ID,
@@ -30,6 +29,13 @@ bb = ConfirmationExecutor(
     android=ANDROID,
     items_confirm=data_bd).send_trade_allow_request()
 
-
+for item in bb:
+    with Session_cs() as s:
+        s.query(Status) \
+            .filter(Status.item_id == item.id) \
+            .update({Status.status: 'sold'},
+                    synchronize_session='fetch'
+                    )
+        s.commit()
 
 print()

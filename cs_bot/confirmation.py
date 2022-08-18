@@ -41,16 +41,16 @@ class ConfirmationExecutor:
                     we_confirm.append(r)
                     break
 
-        self._multi_confirm_trans(we_confirm)
         for i in we_confirm:
             for i2 in self._items_confirm:
                 if i.name == i2.name:
                     i.id = i2.id
                     break
-        a = [i[0] for i in we_confirm for i2 in self._items_confirm if i.name == i2.name]
+
+        self._multi_confirm_trans(we_confirm)
         return we_confirm
 
-    def _get_confirmations(self) -> List:
+    def _get_confirmations(self) -> list:
         result = []
         print('Подтверждаем лоты sell')
         confirmations_page = self._fetch_confirmations_page()
@@ -62,7 +62,7 @@ class ConfirmationExecutor:
                 data_key=item.attrs['data-key'],
                 name=item.attrs['name'],
                 data_accept=item.attrs['data-accept'],
-                id=[i[0] for i in self._items_confirm if i.name == item.attrs['name']]
+                id='0'
             ))
         return result
 
@@ -84,7 +84,7 @@ class ConfirmationExecutor:
             response = self._fetch_confirmation_details_page(confirmation)
             return response
 
-    def _multi_confirm_trans(self, we_confirm):
+    def _multi_confirm_trans(self, we_confirm) -> None:
         tag = Tag.ALLOW
         params = self._create_confirmation_params(tag.value)
         params['op'] = tag.value,
