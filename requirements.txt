@@ -7,3 +7,4 @@ aiohttp~=3.8.1
 urllib3~=1.26.11
 steampy~=0.75
 beautifulsoup4~=4.11.1
+mysql-connector-python~=8.0.30
