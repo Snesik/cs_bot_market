@@ -4,8 +4,8 @@ import requests
 import concurrent.futures
 from tqdm import tqdm
 from bd import Session_cs, Session_full_base
-from api_cs.models import Inventory
-from api_cs.api_cs_market import RequestsCS
+from cs_bot.api_cs.models import Inventory
+from cs_bot.api_cs.api import RequestsCS
 from cs_bot.bd.models import Items, Price, Status
 from cs_bot.models import SellInfo
 from cs_bot.utils import chunks

@@ -1,6 +1,6 @@
 import requests
 from cs_bot.variables import API_CS_KEY, API_STEAM_KEY
-from api_cs.models import Inventory, Items
+from cs_bot.api_cs.models import Inventory, Items
 
 
 class RequestsCS:

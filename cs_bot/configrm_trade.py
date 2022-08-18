@@ -1,7 +1,7 @@
 from bd import Session_cs
 from bd.models import Items
 from confirmation import ConfirmationExecutor
-from api_cs.api_cs_market import RequestsCS
+from cs_bot.api_cs.api import RequestsCS
 from models import ItemsConfirm
 from variables import IDENTITY_SECRET, STEAM_ID, ANDROID
 from auth_bots import *
