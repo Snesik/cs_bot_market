@@ -127,6 +127,19 @@ def traders(item) -> None:
         session.commit()
 
 
+# while True:
+#     a = trader.trade_request_give_p2p_all()
+#     if a == 0:
+#         time.sleep(30)
+#         continue
+#     else:
+#         print()
+#
+# from steampy.client import SteamClient
+#
+# a = SteamClient()
+# a.make_offer
+
 trader.ping_pong()
 trader.test()
 trader.update_inv()
@@ -157,6 +170,6 @@ while True:
 
         run(traders, result_my_price)
         print("--- %s seconds ---" % (time.time() - start_time))
-        time.sleep(240)
+        time.sleep(120)
     except Exception:
-        time.sleep(240)
+        time.sleep(120)

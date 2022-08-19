@@ -20,11 +20,7 @@ class ConfirmationExecutor:
 
     def __init__(self,
                  identity_secret: str,
-                 my_steam_id: str,
-                 session: requests.Session,
-                 android: str,
-                 items_confirm: list
-                 ) -> None:
+                 my_steam_id: str,session: requests.Session, android: str,items_confirm: list) -> None:
 
         self._my_steam_id = my_steam_id
         self._identity_secret = identity_secret

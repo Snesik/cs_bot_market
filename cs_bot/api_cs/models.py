@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 
 class Inventory(BaseModel):
@@ -24,3 +25,20 @@ class Items(BaseModel):
 
 class Model(BaseModel):
     inventory: Inventory
+
+
+class Item(BaseModel):
+    appid: int
+    contextid: int
+    assetid: str
+    amount: int
+
+
+class CreatOfferts(BaseModel):
+    """Класс создания трейда"""
+    hash: str
+    partner: int
+    token: str
+    tradeoffermessage: str
+    items: List[Item]
+    created: bool

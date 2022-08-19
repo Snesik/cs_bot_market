@@ -68,3 +68,6 @@ class ItemSteamConfirm(BaseModel):
     name: str
     data_accept: str
     id: str
+
+
+

@@ -1,6 +1,8 @@
+from typing import List, Any
+
 import requests
 from cs_bot.variables import API_CS_KEY, API_STEAM_KEY
-from cs_bot.api_cs.models import Inventory, Items
+from cs_bot.api_cs.models import Inventory, Items, CreatOfferts
 
 
 class RequestsCS:
@@ -122,3 +124,9 @@ class RequestsCS:
 
     def item_info(self, class_id: str, instance_id: str):
         return requests.get(f'{self.v1}/ItemInfo/{class_id}_{instance_id}/ru/?key={self._cs_api}').json()
+
+    def trade_request_give_p2p_all(self) -> list[Any] | int:
+        response = requests.get(f'https://market.csgo.com/api/v2/trade-request-give-p2p-all?key={self._cs_api}').json()
+        if response['success']:
+            return [CreatOfferts(**i) for i in response['offers']]
+        return 0
