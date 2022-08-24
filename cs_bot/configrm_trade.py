@@ -5,6 +5,7 @@ from cs_bot.api_cs.api import RequestsCS
 from models import ItemsConfirm
 from variables import BOTS
 from auth_bots import *
+from pydantic.error_wrappers import ValidationError
 import traceback
 import pprint
 
@@ -23,8 +24,13 @@ while True:
                 else:
                     time.sleep(5)
                     continue
+            except ValidationError:
+                print('ОШИБКА ВАЛИДАТОРА', traceback.print_exc())
+                time.sleep(15)
+                items_confirm = ItemsConfirm(**confirm.trade_request_all())
+
             except Exception as error:
-                print(traceback.print_exc())
+                print('ОШИБКА ОБЩИЯ А НЕ ВАЛИДАЦИЯ', traceback.print_exc())
                 time.sleep(5)
                 continue
 
@@ -54,4 +60,6 @@ while True:
             time.sleep(15)
 
     except Exception:
+        print("ОШИБКА ВО ВСЕМ КОДЕ")
+        print(traceback.print_exc())
         time.sleep(15)

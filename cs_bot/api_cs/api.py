@@ -1,5 +1,5 @@
 import requests
-from cs_bot.variables import API_CS_KEY, API_STEAM_KEY
+
 from cs_bot.api_cs.models import Inventory, Items
 
 
@@ -8,13 +8,13 @@ class RequestsCS:
     v1 = 'https://market.csgo.com/api'
     v2 = 'https://market.csgo.com/api/v2'
 
-    def __init__(self):
-        self._cs_api = API_CS_KEY
-        self._steam_api = API_STEAM_KEY
+    def __init__(self, bot):
+        self._cs_api = bot['cs']
+        self._steam_api = bot['steam']
 
     """Запросы через api"""
 
-    def my_inventory(self) -> list:
+    def my_inventory(self, ) -> list:
         """Предметы для продажи в моем инвентаре"""
         response = requests.get(f'{self.v2}/my-inventory/?key={self._cs_api}').json()
         if response['success']:

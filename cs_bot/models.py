@@ -1,5 +1,6 @@
 from utils import bild_href, time_block
 from pydantic import BaseModel
+from pydantic.schema import Optional
 from typing import List
 
 
@@ -50,7 +51,7 @@ class Offer(BaseModel):
     hash: str
     partner: int
     token: str
-    tradeoffermessage: str
+    tradeoffermessage: Optional = str
     items: List[Item]
     created: bool
 

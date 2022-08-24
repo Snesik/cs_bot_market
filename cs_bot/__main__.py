@@ -9,14 +9,14 @@ from cs_bot.api_cs.api import RequestsCS
 from cs_bot.bd.models import Items, Price, Status
 from cs_bot.models import SellInfo
 from cs_bot.utils import chunks
-from variables import STEAM_LOGIN_ID
-
-trader = RequestsCS()
+from variables import BOTS
 
 
-def request_inventory_steam():
-    head = {'Referer': f"https://steamcommunity.com/profiles/{STEAM_LOGIN_ID}/inventory"}
-    all_item = requests.get(f'https://steamcommunity.com/inventory/{STEAM_LOGIN_ID}/730/2?l=russian&count=5000',
+
+
+def request_inventory_steam(steam_login_id):
+    head = {'Referer': f"https://steamcommunity.com/profiles/{steam_login_id}/inventory"}
+    all_item = requests.get(f'https://steamcommunity.com/inventory/{steam_login_id}/730/2?l=russian&count=5000',
                             headers=head).json()
     return all_item
 
@@ -29,8 +29,8 @@ def find_instance_id_and_name(item_look, inventory_steam):
     return instance_id, name
 
 
-def add_in_bd(inventory_items: list[Inventory]) -> None:
-    all_cs_inventory = request_inventory_steam()
+def add_in_bd(inventory_items: list[Inventory], bot) -> None:
+    all_cs_inventory = request_inventory_steam(bot['steam_id'])
     with Session_cs() as session:
         lots_in_bd = [str(i[0]) for i in session.query(Items.id).all()]
         that_we_add_in_bd = [i for i in inventory_items if not i.id in lots_in_bd]
@@ -127,36 +127,40 @@ def traders(item) -> None:
         session.commit()
 
 
-trader.ping_pong()
-trader.test()
-trader.update_inv()
+#trader.ping_pong()
+# trader.test()
+# trader.update_inv()
 while True:
-    try:
-        response_remove = trader.remove_all_from_sale()
+    for BOT in BOTS:
+        bot = BOTS[BOT]
+        trader = RequestsCS(bot)
         trader.update_inv()
-        add_in_bd(trader.my_inventory())
-        result_my_price = check_my_price([i.id for i in trader.my_inventory()])
+        try:
+            response_remove = trader.remove_all_from_sale()
+            trader.update_inv()
+            add_in_bd(trader.my_inventory(), bot)
+            result_my_price = check_my_price([i.id for i in trader.my_inventory()])
 
-        for item_50 in chunks(result_my_price, 50):
-            trader.search_item_by_name_50(item_50)
+            for item_50 in chunks(result_my_price, 50):
+                trader.search_item_by_name_50(item_50)
 
-        start_time = time.time()
-
-
-        def run(func, result):
-            try:
-                with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                    print(f'Выставляем лоты на продажу,  TIME: {datetime.datetime.now()}')
-                    list(tqdm(executor.map(func, result),
-                              unit=' Лот', colour='green',
-                              total=len(result)))
-                return
-            except Exception as error:
-                print(error)
+            start_time = time.time()
 
 
-        run(traders, result_my_price)
-        print("--- %s seconds ---" % (time.time() - start_time))
-        time.sleep(240)
-    except Exception:
-        time.sleep(240)
+            def run(func, result):
+                try:
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                        print(f'Выставляем лоты на продажу,  TIME: {datetime.datetime.now()}')
+                        list(tqdm(executor.map(func, result),
+                                  unit=' Лот', colour='green',
+                                  total=len(result)))
+                    return
+                except Exception as error:
+                    print(error)
+
+
+            run(traders, result_my_price)
+            print("--- %s seconds ---" % (time.time() - start_time))
+            time.sleep(60)
+        except Exception:
+            time.sleep(60)

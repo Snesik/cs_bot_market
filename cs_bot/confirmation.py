@@ -2,7 +2,6 @@ import enum
 import time
 import re
 import requests
-from typing import List
 from bs4 import BeautifulSoup
 from steampy import guard
 from models import ItemSteamConfirm
