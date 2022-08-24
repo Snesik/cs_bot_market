@@ -25,7 +25,7 @@ while True:
                     continue
             except Exception as error:
                 print(traceback.print_exc())
-                time.sleep(15)
+                time.sleep(5)
                 continue
 
             with Session_cs() as _session:
@@ -51,7 +51,7 @@ while True:
                     s.commit()
             if len(bb) > 0:
                 pprint.pprint(bb, width=1)
-            time.sleep(30)
+            time.sleep(15)
 
     except Exception:
         time.sleep(15)

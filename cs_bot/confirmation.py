@@ -42,8 +42,8 @@ class ConfirmationExecutor:
                 if i.name == i2.name:
                     i.id = i2.id
                     break
-
-        self._multi_confirm_trans(we_confirm)
+        if len(we_confirm) > 0:
+            self._multi_confirm_trans(we_confirm)
         return we_confirm
 
     def _get_confirmations(self) -> list:
