@@ -55,7 +55,7 @@ class ConfirmationExecutor:
             try:
                 item.attrs['name'] = re.findall('Обменять (.+?) на ', item.text)[0]
             except IndexError:
-                time.sleep(5)
+                time.sleep(13)
                 item.attrs['name'] = re.findall('Обменять (.+?) на ', item.text)[0]
             result.append(ItemSteamConfirm(
                 data_confid=item.attrs['data-confid'],

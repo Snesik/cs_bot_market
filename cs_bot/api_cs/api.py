@@ -111,7 +111,7 @@ class RequestsCS:
         try:
             return requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}').json()
         except JSONDecodeError:
-            time.sleep(5)
+            time.sleep(10)
             return requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}').json()
 
     def set_price(self, item, price: float):
