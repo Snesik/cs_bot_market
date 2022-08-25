@@ -52,14 +52,18 @@ class ConfirmationExecutor:
         if len(soup.select('.mobileconf_list_entry')) == 0:
             soup = BeautifulSoup(confirmations_page, 'html.parser')
         for item in soup.select('.mobileconf_list_entry'):
-            item.attrs['name'] = re.findall('Обменять (.+?) на ', item.text)[0]
+            try:
+                item.attrs['name'] = re.findall('Обменять (.+?) на ', item.text)[0]
+            except IndexError:
+                time.sleep(5)
+                item.attrs['name'] = re.findall('Обменять (.+?) на ', item.text)[0]
             result.append(ItemSteamConfirm(
                 data_confid=item.attrs['data-confid'],
                 data_key=item.attrs['data-key'],
                 name=item.attrs['name'],
                 data_accept=item.attrs['data-accept'],
                 id='0'
-            ))
+                    ))
         return result
 
     def _fetch_confirmations_page(self) -> str:
