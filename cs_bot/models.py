@@ -53,7 +53,7 @@ class Offer(BaseModel):
     token: str
     tradeoffermessage: Optional = str
     items: List[Item]
-    created: bool
+    created: Optional = bool
 
 
 class ItemsConfirm(BaseModel):

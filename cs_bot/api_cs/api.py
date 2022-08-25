@@ -1,6 +1,8 @@
 import requests
+import time
 
 from cs_bot.api_cs.models import Inventory, Items
+from json import JSONDecodeError
 
 
 class RequestsCS:
@@ -106,7 +108,11 @@ class RequestsCS:
     def trade_request_all(self):
         """Все сделки, которые нужно подтвердить, приходит LIST( {'appid', 'context_id', 'assetid'(при подпадении
          можно найти в инвентаре при нажатии правой кнопкой мыши), 'amount'}"""
-        return requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}').json()
+        try:
+            return requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}').json()
+        except JSONDecodeError:
+            time.sleep(5)
+            return requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}').json()
 
     def set_price(self, item, price: float):
         """Изменить цену лота, ответ dict {'success': True} цена  - 0 снятие """
