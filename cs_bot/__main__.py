@@ -132,10 +132,10 @@ def traders(item) -> None:
 # trader.update_inv()
 while True:
     for BOT in BOTS:
-        bot = BOTS[BOT]
-        trader = RequestsCS(bot)
-        trader.update_inv()
         try:
+            bot = BOTS[BOT]
+            trader = RequestsCS(bot)
+            trader.update_inv()
             response_remove = trader.remove_all_from_sale()
             trader.update_inv()
             add_in_bd(trader.my_inventory(), bot)
@@ -160,7 +160,7 @@ while True:
 
 
             run(traders, result_my_price)
-            print("--- %s seconds ---" % (time.time() - start_time))
-            time.sleep(60)
+            print(BOT, trader.balance()['money'])
+            time.sleep(120)
         except Exception:
-            time.sleep(60)
+            time.sleep(120)

@@ -17,6 +17,7 @@ while True:
             bot = BOTS[BOT]
             session = session_all_bots[BOT]
             confirm = RequestsCS(bot)
+            #ss = confirm.create_trade_p2p()
             a = confirm.trade_request_all()
             try:
                 if a['success']:

@@ -1,6 +1,6 @@
 import requests
 import time
-
+from cs_bot.models import Offer
 from cs_bot.api_cs.models import Inventory, Items
 from json import JSONDecodeError
 
@@ -111,7 +111,7 @@ class RequestsCS:
         try:
             return requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}').json()
         except JSONDecodeError:
-            time.sleep(10)
+            time.sleep(12)
             return requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}').json()
 
     def set_price(self, item, price: float):
@@ -128,3 +128,16 @@ class RequestsCS:
 
     def item_info(self, class_id: str, instance_id: str):
         return requests.get(f'{self.v1}/ItemInfo/{class_id}_{instance_id}/ru/?key={self._cs_api}').json()
+
+    def create_trade_p2p(self):
+        # response = requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}').json()
+        # if response['success']:
+        #     return [Offer(**offer) for offer in response['offers']]
+        #
+        response = {'success': True, 'offers': [
+            {'hash': '8222592811/sSto87Lv5i8', 'partner': 412223706, 'token': 'c35eEv3P',
+             'tradeoffermessage': 'QBM9 ... /trade/8222592811/sSto87Lv5i8/',
+             'items': [{'appid': 730, 'contextid': 2, 'assetid': '26936566297', 'amount': 1},
+                       {'appid': 730, 'contextid': 2, 'assetid': '26936567810', 'amount': 1}], 'created': True}]}
+        if response['success']:
+         return [Offer(**offer) for offer in response['offers']]
