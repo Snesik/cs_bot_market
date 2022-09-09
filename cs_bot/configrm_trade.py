@@ -17,7 +17,7 @@ while True:
             bot = BOTS[BOT]
             session = session_all_bots[BOT]
             confirm = RequestsCS(bot)
-            #ss = confirm.create_trade_p2p()
+            # ss = confirm.create_trade_p2p()
             a = confirm.trade_request_all()
             try:
                 if a['success']:
@@ -58,9 +58,9 @@ while True:
                     s.commit()
             if len(bb) > 0:
                 pprint.pprint(bb, width=1)
-            time.sleep(15)
+            time.sleep(25)
 
     except Exception:
         print("ОШИБКА ВО ВСЕМ КОДЕ")
         print(traceback.print_exc())
-        time.sleep(15)
+        time.sleep(25)

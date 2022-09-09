@@ -163,4 +163,6 @@ while True:
             print(BOT, trader.balance()['money'])
             time.sleep(120)
         except Exception:
-            time.sleep(120)
+            # import traceback
+            # print(traceback.print_exc())
+            time.sleep(60)

@@ -108,11 +108,12 @@ class RequestsCS:
     def trade_request_all(self):
         """Все сделки, которые нужно подтвердить, приходит LIST( {'appid', 'context_id', 'assetid'(при подпадении
          можно найти в инвентаре при нажатии правой кнопкой мыши), 'amount'}"""
-        try:
-            return requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}').json()
-        except JSONDecodeError:
-            time.sleep(12)
-            return requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}').json()
+        #try:
+        response = requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}')
+        if response.status_code != 200:
+            return {'success': False}
+        return response.json()
+
 
     def set_price(self, item, price: float):
         """Изменить цену лота, ответ dict {'success': True} цена  - 0 снятие """
