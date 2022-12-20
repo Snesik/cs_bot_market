@@ -5,11 +5,11 @@ import concurrent.futures
 import traceback
 from tqdm import tqdm
 from bd import Session_cs, Session_full_base
-from cs_bot.api_cs.models import Inventory
-from cs_bot.api_cs.api import RequestsCS
-from cs_bot.bd.models import Items, Price, Status
-from cs_bot.models import SellInfo
-from cs_bot.utils import chunks
+from api_cs.models import Inventory
+from api_cs.api import RequestsCS
+from bd.models import Items, Price, Status
+from models import SellInfo
+from utils import chunks
 from variables import BOTS
 from auth_bots import proxies
 

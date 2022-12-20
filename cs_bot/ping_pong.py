@@ -1,7 +1,7 @@
 import time
 
-from cs_bot.variables import BOTS
-from cs_bot.api_cs.api import RequestsCS
+from variables import BOTS
+from api_cs.api import RequestsCS
 
 
 def send_ping(bot):

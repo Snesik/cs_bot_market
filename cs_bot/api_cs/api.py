@@ -1,8 +1,8 @@
 import requests
 from datetime import datetime
 from cs_bot.models import Offer
-from cs_bot.api_cs.models import Inventory, Items
-from json import JSONDecodeError
+from .models import Inventory, Items
+
 
 
 class RequestsCS:

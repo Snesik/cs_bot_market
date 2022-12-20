@@ -1,7 +1,7 @@
 from bd import Session_cs
 from bd.models import Items, Status
 from confirmation import ConfirmationExecutor
-from cs_bot.api_cs.api import RequestsCS
+from api_cs.api import RequestsCS
 from models import ItemsConfirm
 from variables import BOTS
 from auth_bots import *
