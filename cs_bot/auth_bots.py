@@ -18,6 +18,8 @@ head = {'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
 path = os.path.abspath('')
 # path = os.path.abspath('Bot/cookes/')
 session = {}
+proxies = {'http': '192.168.0.100:5001',
+           'https': '192.168.0.100:5001'}
 
 
 def create_session_id_cookie(name: str, value: str) -> dict:
@@ -116,6 +118,7 @@ def creation_session_bots(path=path):
         session[bot].mount('https://', TimeoutHTTPAdapter(max_retries=retries))
 
         session[bot].headers.update(head)
+        #session[bot].proxies.update(proxies)
         session[bot].get("https://steamcommunity.com")
         session[bot].cookies.set(
             **create_session_id_cookie('steamRememberLogin', session[bot].cookies['steamRememberLogin']))

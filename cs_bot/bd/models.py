@@ -14,6 +14,7 @@ class Items(Base):
     name = Column(String(200), nullable=False)
     class_id = Column(BigInteger(), nullable=False)
     instance_id = Column(Integer(), nullable=False)
+    bot = Column(String(50))
 
     price = relationship('Price', backref='Items', uselist=False)
     status = relationship('Status', backref="items", uselist=False)

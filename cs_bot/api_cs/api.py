@@ -1,5 +1,5 @@
 import requests
-import time
+from datetime import datetime
 from cs_bot.models import Offer
 from cs_bot.api_cs.models import Inventory, Items
 from json import JSONDecodeError
@@ -18,7 +18,7 @@ class RequestsCS:
 
     def my_inventory(self, ) -> list:
         """Предметы для продажи в моем инвентаре"""
-        response = requests.get(f'{self.v2}/my-inventory/?key={self._cs_api}').json()
+        response = requests.get(f'{self.v2}/my-inventory/?key={self._cs_api}', timeout=60).json()
         if response['success']:
             return [Inventory(**i) for i in response['items']]
         raise f'ОШИБКА {response}'
@@ -36,7 +36,7 @@ class RequestsCS:
 
     def update_inv(self):
         """Обновить информацию об инвентаре, рекомендация проводить после каждой передачи предмета"""
-        return requests.get(f'{self.v2}/update-inventory/?key={self._cs_api}').json()
+        return requests.get(f'{self.v2}/update-inventory/?key={self._cs_api}', timeout=60).json()
 
     def test(self):
         """Проверить возможность работы, все должны быть TRUE"""
@@ -49,7 +49,7 @@ class RequestsCS:
             if value or value == 'pong':
                 pass
             else:
-                raise print(f'{key} нет доступа: ответ {value}')
+                raise print(datetime.now(), result)
         return True
 
     def balance(self):
@@ -65,7 +65,7 @@ class RequestsCS:
         price = "{0:.0f}".format(price * 100)
         data = requests.get(f'{self.v2}/add-to-sale?key={self._cs_api}&id={item.id[0]}&price={price}&cur=RUB').json()
         if not data['success']:
-            print('Не продали:', item.name, data)
+            print('Не продали:', item.hash_name, data)
             return False
         item.id_sell = data['item_id']
         return data
@@ -108,12 +108,11 @@ class RequestsCS:
     def trade_request_all(self):
         """Все сделки, которые нужно подтвердить, приходит LIST( {'appid', 'context_id', 'assetid'(при подпадении
          можно найти в инвентаре при нажатии правой кнопкой мыши), 'amount'}"""
-        #try:
+        # try:
         response = requests.get(f'{self.v2}/trade-request-give-p2p-all?key={self._cs_api}')
         if response.status_code != 200:
             return {'success': False}
         return response.json()
-
 
     def set_price(self, item, price: float):
         """Изменить цену лота, ответ dict {'success': True} цена  - 0 снятие """
@@ -141,4 +140,4 @@ class RequestsCS:
              'items': [{'appid': 730, 'contextid': 2, 'assetid': '26936566297', 'amount': 1},
                        {'appid': 730, 'contextid': 2, 'assetid': '26936567810', 'amount': 1}], 'created': True}]}
         if response['success']:
-         return [Offer(**offer) for offer in response['offers']]
+            return [Offer(**offer) for offer in response['offers']]
