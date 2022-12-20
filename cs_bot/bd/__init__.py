@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from cs_bot.variables import CONNECTION_BD_CS, CONNECTION_BD_FULL_BASE
+from ..variables import CONNECTION_BD_CS, CONNECTION_BD_FULL_BASE
 from sqlalchemy import create_engine
 
 
